@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Sauna App - Registro de Ingreso</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <h1>🧖 Sauna Illimani</h1>
+      <div class="header-status-group">
+        <span id="connection-status" class="status-badge status-online">En línea</span>
+        <button id="sync-status-btn" class="status-badge status-offline" title="Sincronizar ahora">☁ Sin servidor</button>
+        <button id="sync-config-btn" class="status-badge status-offline" title="Configurar servidor de sincronización">⚙</button>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="registro">
+        <span class="tab-icon">🧍</span><span class="tab-label">Ingreso</span>
+      </button>
+      <button class="tab-btn" data-tab="inventario">
+        <span class="tab-icon">📦</span><span class="tab-label">Inventario</span>
+      </button>
+      <button class="tab-btn" data-tab="pedidos">
+        <span class="tab-icon">🛒</span><span class="tab-label">Pedidos</span>
+      </button>
+      <button class="tab-btn" data-tab="caja">
+        <span class="tab-icon">💰</span><span class="tab-label">Caja</span>
+      </button>
+      <button class="tab-btn" data-tab="reportes">
+        <span class="tab-icon">📊</span><span class="tab-label">Reportes</span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <section id="registro" class="tab-content active">
+      <div class="grid-layout">
+        <div class="card form-card">
+          <h2>Registrar Ingreso</h2>
+          <form id="ingreso-form" autocomplete="off">
+            <div class="field">
+              <label for="nombre">Nombre del cliente</label>
+              <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+            </div>
+
+            <div class="field">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" placeholder="Ej: 70012345">
+            </div>
+
+            <div class="field">
+              <label for="servicio">Tipo de servicio</label>
+              <select id="servicio" name="servicio" required>
+                <option value="" disabled selected>Selecciona un servicio</option>
+                <option value="sauna_individual">Sauna Individual</option>
+                <option value="sauna_grupal">Sauna Grupal</option>
+                <option value="masaje_simple">Masaje Simple</option>
+                <option value="masaje_sauna">Masaje + Sauna</option>
+                <option value="piscina_jacuzzi">Piscina/Jacuzzi</option>
+                <option value="paquete_completo">Paquete Completo</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="personas">N° de personas</label>
+                <input type="number" id="personas" name="personas" min="1" value="1" required>
+              </div>
+              <div class="field">
+                <label for="cabina">Cabina/Sala</label>
+                <input type="text" id="cabina" name="cabina" placeholder="Ej: Cabina 2">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="hora">Hora de ingreso</label>
+                <input type="text" id="hora" name="hora" readonly>
+              </div>
+              <div class="field">
+                <label for="duracion">Duración estimada</label>
+                <select id="duracion" name="duracion" required>
+                  <option value="30">30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60" selected>60 min</option>
+                  <option value="90">90 min</option>
+                  <option value="120">120 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="notas">Notas (opcional)</label>
+              <textarea id="notas" name="notas" rows="2" placeholder="Observaciones..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Registrar Ingreso</button>
+          </form>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Clientes Activos</h2>
+            <span id="contador-activos" class="counter-badge">0</span>
+          </div>
+          <div class="search-box">
+            <input type="text" id="buscar-cliente" placeholder="Buscar cliente...">
+          </div>
+          <div id="lista-clientes" class="client-list">
+            <p class="empty-state">No hay clientes registrados aún.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inventario" class="tab-content">
+      <div class="grid-layout">
+        <div class="card form-card">
+          <h2 id="inv-form-title">Nuevo Producto</h2>
+          <form id="inventario-form" autocomplete="off">
+            <input type="hidden" id="prod-id">
+            <div class="field">
+              <label for="prod-nombre">Nombre del producto</label>
+              <input type="text" id="prod-nombre" placeholder="Ej: Toalla grande" required>
+            </div>
+
+            <div class="field">
+              <label for="prod-categoria">Categoría</label>
+              <select id="prod-categoria" required>
+                <option value="" disabled selected>Selecciona una categoría</option>
+                <option value="amenities">Amenities (toallas, batas, etc.)</option>
+                <option value="bebidas">Bebidas</option>
+                <option value="snacks">Snacks</option>
+                <option value="limpieza">Limpieza</option>
+                <option value="insumos_spa">Insumos de Spa</option>
+                <option value="otros">Otros</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="prod-stock">Stock actual</label>
+                <input type="number" id="prod-stock" min="0" value="0" required>
+              </div>
+              <div class="field">
+                <label for="prod-unidad">Unidad</label>
+                <input type="text" id="prod-unidad" placeholder="Ej: unidades, kg, litros" value="unidades">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="prod-stock-min">Stock mínimo</label>
+                <input type="number" id="prod-stock-min" min="0" value="5" required>
+              </div>
+              <div class="field">
+                <label for="prod-precio">Precio (Bs.)</label>
+                <input type="number" id="prod-precio" min="0" step="0.01" value="0">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="inv-submit-btn">Agregar Producto</button>
+            <button type="button" class="btn-secondary" id="inv-cancel-btn" style="display:none;">Cancelar edición</button>
+          </form>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Productos</h2>
+            <span id="contador-productos" class="counter-badge">0</span>
+          </div>
+          <div class="search-box inv-filters">
+            <input type="text" id="buscar-producto" placeholder="Buscar producto...">
+            <select id="filtro-categoria">
+              <option value="">Todas las categorías</option>
+              <option value="amenities">Amenities</option>
+              <option value="bebidas">Bebidas</option>
+              <option value="snacks">Snacks</option>
+              <option value="limpieza">Limpieza</option>
+              <option value="insumos_spa">Insumos de Spa</option>
+              <option value="otros">Otros</option>
+            </select>
+            <label class="checkbox-filter">
+              <input type="checkbox" id="filtro-bajo-stock"> Solo bajo stock
+            </label>
+          </div>
+          <div id="lista-productos" class="client-list">
+            <p class="empty-state">No hay productos registrados aún.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pedidos" class="tab-content">
+      <div class="grid-layout">
+        <div class="card form-card">
+          <h2>Nuevo Pedido</h2>
+          <form id="pedido-form" autocomplete="off">
+            <div class="field">
+              <label for="pedido-cliente">Cliente activo</label>
+              <select id="pedido-cliente" required>
+                <option value="" disabled selected>Selecciona un cliente</option>
+              </select>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="pedido-producto">Producto</label>
+                <select id="pedido-producto">
+                  <option value="" disabled selected>Selecciona un producto</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="pedido-cantidad">Cantidad</label>
+                <input type="number" id="pedido-cantidad" min="1" value="1">
+              </div>
+            </div>
+
+            <button type="button" class="btn-secondary" id="pedido-add-item-btn">+ Agregar al pedido</button>
+
+            <div id="pedido-carrito" class="carrito">
+              <p class="empty-state">Aún no agregaste productos.</p>
+            </div>
+
+            <div class="carrito-total">
+              <span>Total</span>
+              <span id="pedido-total">Bs. 0.00</span>
+            </div>
+
+            <div class="field">
+              <label for="pedido-notas">Notas (opcional)</label>
+              <textarea id="pedido-notas" rows="2" placeholder="Observaciones del pedido..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Registrar Pedido</button>
+          </form>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Pedidos</h2>
+            <span id="contador-pedidos" class="counter-badge">0</span>
+          </div>
+          <div class="search-box">
+            <label class="checkbox-filter">
+              <input type="checkbox" id="filtro-pedidos-pendientes"> Solo pendientes
+            </label>
+          </div>
+          <div id="lista-pedidos" class="client-list">
+            <p class="empty-state">No hay pedidos registrados aún.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="caja" class="tab-content">
+      <div class="card caja-status-card">
+        <div class="caja-status-header">
+          <div>
+            <h2>Estado de Caja</h2>
+            <p id="caja-fecha-label" class="caja-subtitle"></p>
+          </div>
+          <span id="caja-estado-badge" class="status-badge status-offline">Cerrada</span>
+        </div>
+
+        <form id="apertura-form" class="caja-inline-form">
+          <div class="field">
+            <label for="caja-monto-inicial">Monto inicial en efectivo (Bs.)</label>
+            <input type="number" id="caja-monto-inicial" min="0" step="0.01" value="0" required>
+          </div>
+          <button type="submit" class="btn-primary">Abrir Caja</button>
+        </form>
+
+        <div id="caja-resumen" class="caja-resumen" style="display:none;">
+          <div class="resumen-grid">
+            <div class="resumen-item"><span>Monto inicial</span><strong id="res-monto-inicial">Bs. 0.00</strong></div>
+            <div class="resumen-item"><span>Ingresos efectivo</span><strong id="res-ingresos-efectivo">Bs. 0.00</strong></div>
+            <div class="resumen-item"><span>Ingresos tarjeta</span><strong id="res-ingresos-tarjeta">Bs. 0.00</strong></div>
+            <div class="resumen-item"><span>Ingresos QR</span><strong id="res-ingresos-qr">Bs. 0.00</strong></div>
+            <div class="resumen-item"><span>Egresos efectivo</span><strong id="res-egresos-efectivo">Bs. 0.00</strong></div>
+            <div class="resumen-item destacado"><span>Efectivo esperado en caja</span><strong id="res-efectivo-esperado">Bs. 0.00</strong></div>
+          </div>
+
+          <form id="cierre-form" class="caja-inline-form">
+            <div class="field">
+              <label for="caja-monto-contado">Efectivo contado al cierre (Bs.)</label>
+              <input type="number" id="caja-monto-contado" min="0" step="0.01" value="0">
+            </div>
+            <button type="submit" class="btn-secondary" style="display:block;">Cerrar Caja y Hacer Arqueo</button>
+          </form>
+          <p id="caja-diferencia" class="caja-diferencia"></p>
+        </div>
+      </div>
+
+      <div class="grid-layout">
+        <div class="card form-card">
+          <h2>Registrar Movimiento</h2>
+          <form id="movimiento-form" autocomplete="off">
+            <div class="field">
+              <label for="mov-tipo">Tipo</label>
+              <select id="mov-tipo" required>
+                <option value="ingreso">Ingreso (cobro)</option>
+                <option value="egreso">Egreso (gasto)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="mov-concepto">Concepto</label>
+              <input type="text" id="mov-concepto" placeholder="Ej: Servicio de sauna individual" required>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="mov-monto">Monto (Bs.)</label>
+                <input type="number" id="mov-monto" min="0" step="0.01" required>
+              </div>
+              <div class="field">
+                <label for="mov-metodo">Método de pago</label>
+                <select id="mov-metodo">
+                  <option value="efectivo">Efectivo</option>
+                  <option value="tarjeta">Tarjeta</option>
+                  <option value="qr">QR</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Registrar Movimiento</button>
+          </form>
+
+          <h2 style="margin-top:24px;">Pedidos por Cobrar</h2>
+          <div id="lista-pedidos-cobrar" class="client-list">
+            <p class="empty-state">No hay pedidos pendientes de cobro.</p>
+          </div>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Movimientos de Hoy</h2>
+            <span id="contador-movimientos" class="counter-badge">0</span>
+          </div>
+          <div id="lista-movimientos" class="client-list">
+            <p class="empty-state">Aún no hay movimientos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="reportes" class="tab-content">
+      <div class="card caja-status-card">
+        <div class="caja-status-header">
+          <div>
+            <h2>Reporte Diario</h2>
+            <p class="caja-subtitle">Selecciona una fecha para ver el resumen del día</p>
+          </div>
+          <input type="date" id="rep-fecha" class="rep-fecha-input">
+        </div>
+
+        <div class="resumen-grid rep-stats-grid">
+          <div class="resumen-item destacado"><span>Clientes atendidos</span><strong id="rep-clientes">0</strong></div>
+          <div class="resumen-item"><span>Pedidos registrados</span><strong id="rep-pedidos">0</strong></div>
+          <div class="resumen-item"><span>Ingresos totales</span><strong id="rep-ingresos">Bs. 0.00</strong></div>
+          <div class="resumen-item"><span>Egresos totales</span><strong id="rep-egresos">Bs. 0.00</strong></div>
+          <div class="resumen-item destacado"><span>Ganancia neta del día</span><strong id="rep-neto">Bs. 0.00</strong></div>
+          <div class="resumen-item"><span>Arqueo de caja</span><strong id="rep-arqueo">Sin cierre</strong></div>
+        </div>
+      </div>
+
+      <div class="grid-layout">
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Servicios del Día</h2>
+          </div>
+          <div id="rep-servicios" class="report-bars">
+            <p class="empty-state">Sin datos para esta fecha.</p>
+          </div>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Productos Más Vendidos</h2>
+          </div>
+          <div id="rep-productos" class="report-bars">
+            <p class="empty-state">Sin datos para esta fecha.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-layout">
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Ingresos por Método de Pago</h2>
+          </div>
+          <div id="rep-metodos" class="report-bars">
+            <p class="empty-state">Sin datos para esta fecha.</p>
+          </div>
+        </div>
+
+        <div class="card list-card">
+          <div class="list-header">
+            <h2>Movimientos del Día</h2>
+            <span id="rep-contador-movimientos" class="counter-badge">0</span>
+          </div>
+          <div id="rep-lista-movimientos" class="client-list">
+            <p class="empty-state">Sin movimientos para esta fecha.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/inventario.js"></script>
+  <script src="js/pedidos.js"></script>
+  <script src="js/caja.js"></script>
+  <script src="js/reportes.js"></script>
+  <script src="js/sync.js"></script>
+</body>
+</html>
