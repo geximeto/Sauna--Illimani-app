@@ -38,8 +38,10 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, hora: new Date().toISOString() });
 });
 
-// Sirve el frontend PWA directamente desde el mismo servidor (opcional, para probar todo junto)
-app.use(express.static(path.join(__dirname, '..')));
+// Sirve el frontend PWA directamente desde el mismo servidor.
+// Se copia a backend/public/ para que quede incluido cuando Railway/Render usan
+// "backend" como directorio raíz del despliegue (el resto del repo no se incluye).
+app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   console.log(`Cliente conectado: ${socket.id} (total: ${io.engine.clientsCount})`);
