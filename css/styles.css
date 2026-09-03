@@ -609,6 +609,19 @@ body {
 .precio-tag {
   font-weight: 700;
   color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.precio-tag-editar {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: #f0fdfa;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--primary-light);
 }
 
 .precio-tag.sin-precio {

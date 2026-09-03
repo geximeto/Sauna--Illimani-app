@@ -64,7 +64,7 @@ function renderProductos() {
           <span class="service-tag">${CATEGORIAS_LABEL[p.categoria] || p.categoria}</span>
           <span class="time-badge ${bajoStock ? 'vencido' : ''}">${p.stock} ${escapeHtml(p.unidad || 'unidades')}</span>
           <span>Mínimo: ${p.stockMinimo}</span>
-          ${p.precio ? `<span class="precio-tag">Bs. ${Number(p.precio).toFixed(2)}</span>` : '<span class="precio-tag sin-precio">Sin precio · tocar para agregar</span>'}
+          ${p.precio ? `<span class="precio-tag">Bs. ${Number(p.precio).toFixed(2)} <span class="precio-tag-editar">✎ editar</span></span>` : '<span class="precio-tag sin-precio">✎ Sin precio · tocar para agregar</span>'}
           ${bajoStock ? '<span style="color:var(--danger);font-weight:700;">⚠ Bajo stock</span>' : ''}
         </div>
       </div>
