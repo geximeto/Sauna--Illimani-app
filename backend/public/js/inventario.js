@@ -58,20 +58,20 @@ function renderProductos() {
     const bajoStock = esBajoStock(p);
     return `
     <div class="client-item ${bajoStock ? 'vencido' : ''}" data-id="${p.id}">
-      <div class="client-info">
+      <div class="client-info editable-info" data-action="editar" data-id="${p.id}" title="Tocar para editar">
         <div class="client-name">${escapeHtml(p.nombre)}</div>
         <div class="client-meta">
           <span class="service-tag">${CATEGORIAS_LABEL[p.categoria] || p.categoria}</span>
           <span class="time-badge ${bajoStock ? 'vencido' : ''}">${p.stock} ${escapeHtml(p.unidad || 'unidades')}</span>
           <span>Mínimo: ${p.stockMinimo}</span>
-          ${p.precio ? `<span>Bs. ${Number(p.precio).toFixed(2)}</span>` : ''}
+          ${p.precio ? `<span class="precio-tag">Bs. ${Number(p.precio).toFixed(2)}</span>` : '<span class="precio-tag sin-precio">Sin precio · tocar para agregar</span>'}
           ${bajoStock ? '<span style="color:var(--danger);font-weight:700;">⚠ Bajo stock</span>' : ''}
         </div>
       </div>
       <div class="client-actions">
         <button class="btn-icon" title="Restar 1" data-action="restar" data-id="${p.id}">−</button>
         <button class="btn-icon" title="Sumar 1" data-action="sumar" data-id="${p.id}">+</button>
-        <button class="btn-icon" title="Editar" data-action="editar" data-id="${p.id}">✎</button>
+        <button class="btn-icon" title="Editar producto" data-action="editar" data-id="${p.id}">✎</button>
         <button class="btn-icon btn-salida" title="Eliminar" data-action="eliminar" data-id="${p.id}">🗑</button>
       </div>
     </div>

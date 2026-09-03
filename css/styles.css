@@ -606,6 +606,29 @@ body {
   font-weight: 600;
 }
 
+.precio-tag {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.precio-tag.sin-precio {
+  color: var(--warning);
+  background: #fef3c7;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.editable-info {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.editable-info:hover {
+  background: rgba(15,118,110,0.06);
+}
+
 .client-actions {
   display: flex;
   gap: 8px;
