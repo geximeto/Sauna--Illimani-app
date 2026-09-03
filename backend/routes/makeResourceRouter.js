@@ -18,6 +18,7 @@ function makeResourceRouter(db, io, resourceName, columns) {
   const getByUuidStmt = db.prepare(`SELECT * FROM ${table} WHERE uuid = ?`);
   const getAllStmt = db.prepare(`SELECT * FROM ${table} ORDER BY updatedAt DESC`);
   const getSinceStmt = db.prepare(`SELECT * FROM ${table} WHERE updatedAt > ? ORDER BY updatedAt ASC`);
+  const deleteStmt = db.prepare(`DELETE FROM ${table} WHERE uuid = ?`);
 
   function toRow(record) {
     return columns.map(c => {
@@ -68,6 +69,12 @@ function makeResourceRouter(db, io, resourceName, columns) {
       db.exec('ROLLBACK');
       res.status(400).json({ error: err.message });
     }
+  });
+
+  router.delete('/:uuid', (req, res) => {
+    deleteStmt.run(req.params.uuid);
+    io.emit('sync:delete', { resource: resourceName, uuid: req.params.uuid });
+    res.status(204).end();
   });
 
   return router;
