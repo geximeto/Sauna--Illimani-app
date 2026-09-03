@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
@@ -9,7 +10,11 @@ const { initSchema } = require('./db/schema');
 const { makeResourceRouter } = require('./routes/makeResourceRouter');
 
 const PORT = process.env.PORT || 3000;
-const DB_PATH = path.join(__dirname, 'db', 'sauna.sqlite');
+// La base de datos vive en su propia carpeta ("data"), separada del código ("db/schema.js"),
+// porque un volumen persistente montado ahí "tapa" cualquier archivo de código en esa ruta.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const DB_PATH = path.join(DATA_DIR, 'sauna.sqlite');
 
 const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA journal_mode = WAL');

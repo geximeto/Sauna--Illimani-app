@@ -2,5 +2,6 @@ node_modules/
 backend/db/*.sqlite
 backend/db/*.sqlite-shm
 backend/db/*.sqlite-wal
+backend/data/
 *.log
 .DS_Store
