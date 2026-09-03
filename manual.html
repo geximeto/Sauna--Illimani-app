@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Uso — Sauna Illimani</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16231f;
+    --paper: #faf9f6;
+    --paper-raised: #ffffff;
+    --accent: #0f766e;
+    --accent-dark: #0b5c56;
+    --accent-soft: #e3f4f1;
+    --muted: #5b6b66;
+    --border: #dfe6e2;
+    --warn: #b45309;
+    --warn-soft: #fef3c7;
+    --danger: #b91c1c;
+    --danger-soft: #fee2e2;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(22,35,31,0.06), 0 8px 24px rgba(22,35,31,0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eef3f1;
+      --paper: #10201c;
+      --paper-raised: #16302a;
+      --accent: #2dd4bf;
+      --accent-dark: #5eead4;
+      --accent-soft: #17332d;
+      --muted: #9db3ac;
+      --border: #274842;
+      --warn: #fbbf24;
+      --warn-soft: #3a2c10;
+      --danger: #f87171;
+      --danger-soft: #3a1414;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eef3f1;
+    --paper: #10201c;
+    --paper-raised: #16302a;
+    --accent: #2dd4bf;
+    --accent-dark: #5eead4;
+    --accent-soft: #17332d;
+    --muted: #9db3ac;
+    --border: #274842;
+    --warn: #fbbf24;
+    --warn-soft: #3a2c10;
+    --danger: #f87171;
+    --danger-soft: #3a1414;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    text-wrap: balance;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  code, kbd, .kbd {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  a { color: var(--accent-dark); }
+
+  /* ---------- Portada ---------- */
+  .portada {
+    padding: 56px 24px 40px;
+    background: linear-gradient(160deg, var(--accent-soft), var(--paper) 65%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .portada-inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    margin-bottom: 18px;
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .portada h1 {
+    font-size: clamp(2.1rem, 5vw, 3rem);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .portada p.lead {
+    margin-top: 16px;
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 58ch;
+  }
+
+  .portada-meta {
+    margin-top: 28px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .pill strong { color: var(--accent-dark); }
+
+  /* ---------- Layout general ---------- */
+  .layout {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 48px;
+    padding: 40px 24px 96px;
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; padding: 32px 18px 72px; }
+  }
+
+  /* ---------- Índice lateral ---------- */
+  nav.indice {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+
+  @media (max-width: 860px) {
+    nav.indice { position: static; max-height: none; }
+  }
+
+  nav.indice h2 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Work Sans', sans-serif;
+    margin-bottom: 14px;
+  }
+
+  nav.indice ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  nav.indice a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  nav.indice a:hover { background: var(--accent-soft); }
+
+  nav.indice .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--accent-dark);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Contenido ---------- */
+  main { min-width: 0; }
+
+  section.modulo {
+    scroll-margin-top: 24px;
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section.modulo:first-child { padding-top: 0; }
+  section.modulo:last-child { border-bottom: none; }
+
+  .modulo-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .modulo-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  section.modulo h2 {
+    font-size: 1.55rem;
+    font-weight: 600;
+  }
+
+  section.modulo > p.intro {
+    color: var(--muted);
+    max-width: 68ch;
+    margin: 0 0 24px;
+  }
+
+  h3.paso-titulo {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 28px 0 12px;
+    color: var(--ink);
+  }
+
+  ol.pasos {
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+    counter-reset: paso;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  ol.pasos li {
+    counter-increment: paso;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    max-width: 68ch;
+  }
+
+  ol.pasos li::before {
+    content: counter(paso);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-ref {
+    display: inline-block;
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+
+  .campo-lista {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+
+  .campo-lista li {
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+
+  .campo-lista .campo-nombre {
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .campo-lista .campo-detalle {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .nota, .aviso, .alerta {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 18px 0;
+    max-width: 68ch;
+    font-size: 0.92rem;
+    display: flex;
+    gap: 10px;
+  }
+
+  .nota {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+  }
+
+  .aviso {
+    background: var(--warn-soft);
+    border: 1px solid var(--warn);
+  }
+
+  .alerta {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger);
+  }
+
+  .nota strong, .aviso strong, .alerta strong { display: block; margin-bottom: 2px; }
+
+  table.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9rem;
+  }
+
+  table.tabla th, table.tabla td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  table.tabla th {
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  table.tabla td.num { font-variant-numeric: tabular-nums; }
+
+  .badge-ejemplo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .badge-ejemplo.verde { background: #dcfce7; color: #15803d; }
+  .badge-ejemplo.ambar { background: var(--warn-soft); color: var(--warn); }
+  .badge-ejemplo.roja { background: var(--danger-soft); color: var(--danger); }
+
+  /* ---------- Checklist diaria ---------- */
+  .checklist {
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    margin: 18px 0;
+    max-width: 68ch;
+  }
+
+  .checklist h4 {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .checklist .momento {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .checklist ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .checklist li {
+    display: flex;
+    gap: 10px;
+    font-size: 0.92rem;
+  }
+
+  .checklist li::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .checklist + .checklist { margin-top: 14px; }
+
+  /* ---------- FAQ ---------- */
+  details.faq {
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    max-width: 68ch;
+  }
+
+  details.faq summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  details.faq summary::-webkit-details-marker { display: none; }
+
+  details.faq summary::after {
+    content: '+';
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent-dark);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  details.faq[open] summary::after { content: '−'; }
+
+  details.faq p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  footer.pie {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px 56px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media print {
+    nav.indice, .no-print { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="portada">
+    <div class="portada-inner">
+      <span class="eyebrow">Manual de operación</span>
+      <h1>Sauna Illimani</h1>
+      <p class="lead">Guía práctica para el uso diario del sistema: registro de clientes, inventario, pedidos, caja y reportes. Pensada para consultarse desde el celular mientras trabajas.</p>
+      <div class="portada-meta">
+        <span class="pill">🔗 <strong>sauna-illimani-app-production.up.railway.app</strong></span>
+        <span class="pill">📱 Funciona en celular, tablet y PC</span>
+        <span class="pill">📶 Funciona sin internet</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <nav class="indice">
+      <h2>Contenido</h2>
+      <ol>
+        <li><a href="#empezar"><span class="num">00</span> Antes de empezar</a></li>
+        <li><a href="#ingreso"><span class="num">01</span> Ingreso de clientes</a></li>
+        <li><a href="#inventario"><span class="num">02</span> Inventario</a></li>
+        <li><a href="#pedidos"><span class="num">03</span> Pedidos</a></li>
+        <li><a href="#caja"><span class="num">04</span> Caja y arqueo</a></li>
+        <li><a href="#reportes"><span class="num">05</span> Reportes</a></li>
+        <li><a href="#rutina"><span class="num">06</span> Rutina del día</a></li>
+        <li><a href="#dudas"><span class="num">07</span> Preguntas frecuentes</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <section class="modulo" id="empezar">
+        <div class="modulo-head">
+          <span class="modulo-num">00</span>
+          <h2>Antes de empezar</h2>
+        </div>
+        <p class="intro">Cómo abrir la app y qué significan los indicadores de la parte de arriba.</p>
+
+        <h3 class="paso-titulo">Abrir la app</h3>
+        <ol class="pasos">
+          <li>Abre el navegador (Chrome, Safari, etc.) en tu celular, tablet o computadora.</li>
+          <li>Entra a <strong>sauna-illimani-app-production.up.railway.app</strong></li>
+          <li><em>Opcional pero recomendado:</em> en el menú del navegador busca "Agregar a pantalla de inicio" o "Instalar app" — así te queda un ícono como cualquier otra aplicación, sin tener que escribir la dirección cada vez.</li>
+        </ol>
+
+        <h3 class="paso-titulo">Los indicadores de arriba a la derecha</h3>
+        <table class="tabla">
+          <tr><th>Indicador</th><th>Qué significa</th></tr>
+          <tr><td><span class="badge-ejemplo verde">En línea</span></td><td>Tu dispositivo tiene conexión a internet</td></tr>
+          <tr><td><span class="badge-ejemplo roja">Sin conexión</span></td><td>No hay internet — la app sigue funcionando, guarda todo en el celular</td></tr>
+          <tr><td><span class="badge-ejemplo verde">☁ En vivo</span></td><td>Conectado al servidor — lo que registres aparece al instante en los demás dispositivos</td></tr>
+          <tr><td><span class="badge-ejemplo ambar">☁ Sincronizando</span></td><td>Está enviando/recibiendo datos del servidor, espera unos segundos</td></tr>
+          <tr><td><span class="badge-ejemplo roja">☁ Error de conexión</span></td><td>No pudo conectarse al servidor — revisa el internet o toca el ícono ⚙</td></tr>
+        </table>
+
+        <div class="nota">
+          <span>💡</span>
+          <div><strong>No hace falta usuario ni contraseña.</strong> Cualquiera con el link puede abrir la app y ver los mismos datos en tiempo real.</div>
+        </div>
+      </section>
+
+      <section class="modulo" id="ingreso">
+        <div class="modulo-head">
+          <span class="modulo-num">01</span>
+          <h2>🧍 Ingreso de clientes</h2>
+        </div>
+        <p class="intro">Es la primera pestaña. Aquí se registra a cada cliente que entra al sauna y se controla quién está activo en este momento.</p>
+
+        <h3 class="paso-titulo">Registrar un ingreso</h3>
+        <ol class="pasos">
+          <li>Completa el formulario de la izquierda con los datos del cliente.</li>
+          <li>La <strong>hora de ingreso</strong> se llena sola — no hay que tocarla.</li>
+          <li>Presiona <span class="btn-ref">Registrar Ingreso</span>. El cliente aparece de inmediato en "Clientes Activos", a la derecha.</li>
+        </ol>
+
+        <ul class="campo-lista">
+          <li><span class="campo-nombre">Nombre del cliente</span><span class="campo-detalle">Obligatorio</span></li>
+          <li><span class="campo-nombre">Teléfono</span><span class="campo-detalle">Opcional, para contactarlo si hace falta</span></li>
+          <li><span class="campo-nombre">Tipo de servicio</span><span class="campo-detalle">Sauna individual, grupal, masaje, piscina, paquete completo</span></li>
+          <li><span class="campo-nombre">N° de personas / Cabina</span><span class="campo-detalle">Cuántos entran y en qué espacio</span></li>
+          <li><span class="campo-nombre">Duración estimada</span><span class="campo-detalle">30 a 120 minutos — controla la alerta de tiempo</span></li>
+        </ul>
+
+        <h3 class="paso-titulo">Mientras el cliente está adentro</h3>
+        <p>Cada tarjeta de "Clientes Activos" muestra cuánto tiempo lleva y cuánto le queda según la duración contratada:</p>
+        <table class="tabla">
+          <tr><th>Color de la tarjeta</th><th>Significa</th></tr>
+          <tr><td><span class="badge-ejemplo verde">Normal</span></td><td>Todavía le queda tiempo tranquilo</td></tr>
+          <tr><td><span class="badge-ejemplo ambar">Amarilla</span></td><td>Le quedan 10 minutos o menos — avisar pronto</td></tr>
+          <tr><td><span class="badge-ejemplo roja">Roja (parpadea)</span></td><td>Ya se pasó del tiempo contratado</td></tr>
+        </table>
+
+        <h3 class="paso-titulo">Registrar la salida</h3>
+        <ol class="pasos">
+          <li>Busca al cliente (puedes usar el buscador si hay muchos activos).</li>
+          <li>Presiona el botón <span class="btn-ref">✔</span> de su tarjeta.</li>
+          <li>El cliente desaparece de "Activos" y queda guardado en el historial para los reportes.</li>
+        </ol>
+      </section>
+
+      <section class="modulo" id="inventario">
+        <div class="modulo-head">
+          <span class="modulo-num">02</span>
+          <h2>📦 Inventario</h2>
+        </div>
+        <p class="intro">Acá se controla el stock de todo lo que se vende o se usa: toallas, bebidas, snacks, productos de limpieza, etc.</p>
+
+        <h3 class="paso-titulo">Agregar un producto nuevo</h3>
+        <ol class="pasos">
+          <li>Completa el formulario: nombre, categoría, stock actual, unidad, stock mínimo y precio.</li>
+          <li>El <strong>stock mínimo</strong> es el número que dispara la alerta de "bajo stock" — pon el nivel en el que ya te conviene reponer.</li>
+          <li>Presiona <span class="btn-ref">Agregar Producto</span>.</li>
+        </ol>
+
+        <h3 class="paso-titulo">Editar un producto (nombre, stock, precio, lo que sea)</h3>
+        <ol class="pasos">
+          <li>Toca directamente sobre el nombre del producto en la lista, o el botón <span class="btn-ref">✎</span> de su fila.</li>
+          <li>Junto al precio siempre vas a ver una etiqueta pequeña <strong>"✎ editar"</strong> — es la misma acción, cualquiera de las dos funciona.</li>
+          <li>El formulario de arriba se llena con los datos actuales — modifica lo que necesites y presiona <span class="btn-ref">Guardar Cambios</span>.</li>
+        </ol>
+
+        <h3 class="paso-titulo">Ajustar stock rápido</h3>
+        <p>Sin abrir el formulario: los botones <span class="btn-ref">−</span> y <span class="btn-ref">+</span> de cada fila suman o restan una unidad al instante. Útil cuando entra o sale mercadería de a poco.</p>
+
+        <div class="aviso">
+          <span>⚠️</span>
+          <div><strong>Alerta de bajo stock.</strong> Cuando el stock llega al mínimo configurado, la tarjeta del producto se pone roja con el aviso "⚠ Bajo stock" — es la señal para reponer.</div>
+        </div>
+
+        <p>Con la casilla <strong>"Solo bajo stock"</strong> puedes filtrar la lista y ver de un vistazo todo lo que hay que comprar.</p>
+      </section>
+
+      <section class="modulo" id="pedidos">
+        <div class="modulo-head">
+          <span class="modulo-num">03</span>
+          <h2>🛒 Pedidos</h2>
+        </div>
+        <p class="intro">Para cuando un cliente pide productos del inventario (bebidas, snacks, amenities) durante su visita. Descuenta el stock automáticamente.</p>
+
+        <h3 class="paso-titulo">Tomar un pedido</h3>
+        <ol class="pasos">
+          <li>En <strong>"Cliente activo"</strong> elige el cliente — solo aparecen los que están registrados como activos en el Módulo 1.</li>
+          <li>Elige el producto y la cantidad, luego presiona <span class="btn-ref">+ Agregar al pedido</span>. Se agrega al carrito de abajo.</li>
+          <li>Repite para agregar más productos si hace falta.</li>
+          <li>Revisa el <strong>Total</strong> y presiona <span class="btn-ref">Registrar Pedido</span>.</li>
+        </ol>
+
+        <div class="nota">
+          <span>💡</span>
+          <div>El sistema no deja agregar más cantidad de la que hay en stock — si marca error, revisa el inventario.</div>
+        </div>
+
+        <h3 class="paso-titulo">Marcar un pedido como entregado</h3>
+        <p>En la lista de "Pedidos" (a la derecha), cada pedido nuevo aparece como <span class="badge-ejemplo ambar">Pendiente</span>. Cuando ya le llevaste el producto al cliente, presiona el botón <span class="btn-ref">✔</span> de esa tarjeta para marcarlo <strong>Entregado</strong>.</p>
+
+        <div class="nota">
+          <span>➡️</span>
+          <div>Un pedido entregado <strong>no se cobra solo</strong> — el cobro se hace en el Módulo de Caja, para que quede registrado el dinero que entra.</div>
+        </div>
+      </section>
+
+      <section class="modulo" id="caja">
+        <div class="modulo-head">
+          <span class="modulo-num">04</span>
+          <h2>💰 Caja y arqueo</h2>
+        </div>
+        <p class="intro">Acá se abre la caja del día, se cobran los servicios y pedidos, se registran gastos, y al final se cierra comparando lo que debería haber contra lo que realmente hay.</p>
+
+        <h3 class="paso-titulo">Abrir la caja (al empezar el día)</h3>
+        <ol class="pasos">
+          <li>Cuenta el efectivo con el que arrancas el día.</li>
+          <li>Ingresa ese monto en <strong>"Monto inicial en efectivo"</strong>.</li>
+          <li>Presiona <span class="btn-ref">Abrir Caja</span>. Solo se puede tener una caja abierta por día.</li>
+        </ol>
+
+        <h3 class="paso-titulo">Cobrar un pedido</h3>
+        <p>En la sección <strong>"Pedidos por Cobrar"</strong> aparecen automáticamente los pedidos ya entregados que faltan pagar.</p>
+        <ol class="pasos">
+          <li>Elige el método de pago (Efectivo, Tarjeta o QR) en el desplegable de esa tarjeta.</li>
+          <li>Presiona <span class="btn-ref">✔</span>. Queda registrado como ingreso y el pedido pasa a pagado.</li>
+        </ol>
+
+        <h3 class="paso-titulo">Cobrar un servicio de sauna (o cualquier otro ingreso)</h3>
+        <p>El servicio del sauna no tiene precio fijo en el sistema, así que se cobra manual con el formulario <strong>"Registrar Movimiento"</strong>:</p>
+        <ol class="pasos">
+          <li>Tipo: <strong>Ingreso (cobro)</strong>.</li>
+          <li>Concepto: por ejemplo "Sauna grupal — Juan Pérez".</li>
+          <li>Monto y método de pago.</li>
+          <li>Presiona <span class="btn-ref">Registrar Movimiento</span>.</li>
+        </ol>
+        <p>El mismo formulario sirve para registrar <strong>egresos</strong> (gastos, compras) — solo cambia el "Tipo" a <strong>Egreso (gasto)</strong>.</p>
+
+        <h3 class="paso-titulo">Cerrar la caja (al terminar el día)</h3>
+        <ol class="pasos">
+          <li>Cuenta físicamente el efectivo que hay en la caja.</li>
+          <li>Ingresa ese número en <strong>"Efectivo contado al cierre"</strong>.</li>
+          <li>Presiona <span class="btn-ref">Cerrar Caja y Hacer Arqueo</span>. El sistema compara lo contado contra lo esperado (inicial + ingresos − egresos en efectivo) y muestra la diferencia.</li>
+        </ol>
+
+        <div class="alerta">
+          <span>🔴</span>
+          <div><strong>Si hay diferencia,</strong> no se puede deshacer el cierre — pero queda guardado el detalle exacto en el reporte del día para revisarlo con calma.</div>
+        </div>
+      </section>
+
+      <section class="modulo" id="reportes">
+        <div class="modulo-head">
+          <span class="modulo-num">05</span>
+          <h2>📊 Reportes</h2>
+        </div>
+        <p class="intro">El resumen del negocio, día por día. Se arma solo a partir de todo lo que se cargó en los otros módulos.</p>
+
+        <ol class="pasos">
+          <li>Elige la fecha que quieres revisar (por defecto muestra hoy).</li>
+          <li>Arriba ves los números clave: clientes atendidos, pedidos, ingresos, egresos, ganancia neta y el resultado del arqueo de caja.</li>
+          <li>Más abajo: qué servicios se vendieron más, qué productos, y cómo se distribuyeron los pagos entre efectivo/tarjeta/QR.</li>
+        </ol>
+
+        <div class="nota">
+          <span>💡</span>
+          <div>Sirve para comparar cualquier día pasado — solo cambia la fecha.</div>
+        </div>
+      </section>
+
+      <section class="modulo" id="rutina">
+        <div class="modulo-head">
+          <span class="modulo-num">06</span>
+          <h2>Rutina recomendada del día</h2>
+        </div>
+        <p class="intro">El orden sugerido para no olvidarse de nada.</p>
+
+        <div class="checklist">
+          <h4>🌅 Al abrir</h4>
+          <div class="momento">Antes del primer cliente</div>
+          <ul>
+            <li>Contar el efectivo inicial y abrir la caja en el Módulo 4</li>
+            <li>Revisar en Inventario si hay productos en "bajo stock" para reponer hoy</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <h4>☀️ Durante el día</h4>
+          <div class="momento">Con cada cliente</div>
+          <ul>
+            <li>Registrar el ingreso apenas llega el cliente</li>
+            <li>Si pide productos, cargarlo como pedido</li>
+            <li>Marcar el pedido como entregado cuando se lo llevas</li>
+            <li>Cobrar en Caja (el pedido, y el servicio del sauna)</li>
+            <li>Registrar la salida cuando el cliente se retira</li>
+          </ul>
+        </div>
+
+        <div class="checklist">
+          <h4>🌙 Al cerrar</h4>
+          <div class="momento">Fin del día</div>
+          <ul>
+            <li>Confirmar que no queden clientes activos sin salida registrada</li>
+            <li>Contar el efectivo físico</li>
+            <li>Cerrar la caja y hacer el arqueo</li>
+            <li>Revisar el Reporte del día para ver cómo salió todo</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="modulo" id="dudas">
+        <div class="modulo-head">
+          <span class="modulo-num">07</span>
+          <h2>Preguntas frecuentes</h2>
+        </div>
+
+        <details class="faq">
+          <summary>¿Qué pasa si se corta el internet?</summary>
+          <p>La app sigue funcionando normal — todo se guarda en el celular o computadora. Apenas vuelve la conexión, se sincroniza solo con el resto de los dispositivos.</p>
+        </details>
+
+        <details class="faq">
+          <summary>Hice cambios en la app pero no los veo en otro dispositivo</summary>
+          <p>Revisa que ambos dispositivos digan "☁ En vivo" arriba a la derecha. Si dice "Sin servidor" o "Error de conexión", toca el ícono ⚙ y verifica que la dirección del servidor sea correcta, o simplemente recarga la página.</p>
+        </details>
+
+        <details class="faq">
+          <summary>No veo un cambio nuevo de la app (como un botón que me dijeron que ya existe)</summary>
+          <p>Cierra por completo la app o la pestaña del navegador y ábrela de nuevo. La app guarda una copia local para funcionar sin internet, y a veces hay que reabrirla para que tome la versión más reciente.</p>
+        </details>
+
+        <details class="faq">
+          <summary>¿Puedo usar la app en varios celulares al mismo tiempo?</summary>
+          <p>Sí, todos ven los mismos datos en tiempo real. No hay límite de dispositivos ni se necesita usuario o contraseña.</p>
+        </details>
+
+        <details class="faq">
+          <summary>Marqué mal un dato, ¿cómo lo corrijo?</summary>
+          <p>En Inventario se puede editar todo tocando el producto. En Clientes y Pedidos, por ahora no hay edición directa desde la pantalla — avisa a quien administra el sistema para corregirlo.</p>
+        </details>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="pie">
+    Manual de Sauna Illimani · Actualizado automáticamente junto con la app
+  </footer>
+
+</body>
+</html>
