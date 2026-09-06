@@ -599,10 +599,16 @@
         <ul class="campo-lista">
           <li><span class="campo-nombre">Nombre del cliente</span><span class="campo-detalle">Obligatorio</span></li>
           <li><span class="campo-nombre">Teléfono</span><span class="campo-detalle">Opcional, para contactarlo si hace falta</span></li>
-          <li><span class="campo-nombre">Tipo de servicio</span><span class="campo-detalle">Sauna individual, grupal, masaje, piscina, paquete completo</span></li>
+          <li><span class="campo-nombre">Tipo de servicio</span><span class="campo-detalle">Sauna Individual, Sauna Grupal o Masaje + Sauna</span></li>
           <li><span class="campo-nombre">N° de personas / Cabina</span><span class="campo-detalle">Cuántos entran y en qué espacio</span></li>
-          <li><span class="campo-nombre">Duración estimada</span><span class="campo-detalle">30 a 120 minutos — controla la alerta de tiempo</span></li>
+          <li><span class="campo-nombre">Casillero</span><span class="campo-detalle">Número de casillero asignado al cliente</span></li>
+          <li><span class="campo-nombre">Duración estimada</span><span class="campo-detalle">Solo aparece si el servicio es Sauna Individual — 60 a 180 minutos</span></li>
         </ul>
+
+        <div class="nota">
+          <span>💡</span>
+          <div>El campo "Duración estimada" solo se muestra para <strong>Sauna Individual</strong>. Para Sauna Grupal y Masaje + Sauna, el sistema controla el tiempo automáticamente con un límite de 5 horas.</div>
+        </div>
 
         <h3 class="paso-titulo">Mientras el cliente está adentro</h3>
         <p>Cada tarjeta de "Clientes Activos" muestra cuánto tiempo lleva y cuánto le queda según la duración contratada:</p>
