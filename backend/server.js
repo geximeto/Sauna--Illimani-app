@@ -28,7 +28,7 @@ app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
 const RESOURCES = {
-  clientes: ['uuid', 'nombre', 'telefono', 'servicio', 'personas', 'cabina', 'duracion', 'notas', 'estado', 'timestamp', 'salidaTimestamp', 'updatedAt'],
+  clientes: ['uuid', 'nombre', 'telefono', 'servicio', 'personas', 'cabina', 'casillero', 'duracion', 'notas', 'estado', 'timestamp', 'salidaTimestamp', 'updatedAt'],
   productos: ['uuid', 'nombre', 'categoria', 'stock', 'unidad', 'stockMinimo', 'precio', 'updatedAt'],
   pedidos: ['uuid', 'clienteUuid', 'clienteNombre', 'items', 'total', 'notas', 'estado', 'pagado', 'metodoPago', 'timestamp', 'updatedAt'],
   cajas: ['uuid', 'fecha', 'montoInicial', 'estado', 'montoContado', 'efectivoEsperado', 'diferencia', 'aperturaTimestamp', 'cierreTimestamp', 'updatedAt'],

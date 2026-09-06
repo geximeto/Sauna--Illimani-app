@@ -1,16 +1,17 @@
 const SERVICIOS_LABEL = {
   sauna_individual: 'Sauna Individual',
   sauna_grupal: 'Sauna Grupal',
-  masaje_simple: 'Masaje Simple',
-  masaje_sauna: 'Masaje + Sauna',
-  piscina_jacuzzi: 'Piscina/Jacuzzi',
-  paquete_completo: 'Paquete Completo'
+  masaje_sauna: 'Masaje + Sauna'
 };
 
 const ALERTA_MIN_RESTANTES = 10; // minutos antes del fin para mostrar alerta
+const DURACION_POR_DEFECTO = 300; // 5 horas, para servicios sin campo de duración visible
 
 const form = document.getElementById('ingreso-form');
 const horaInput = document.getElementById('hora');
+const servicioSelect = document.getElementById('servicio');
+const duracionField = document.getElementById('duracion-field');
+const duracionSelect = document.getElementById('duracion');
 const listaEl = document.getElementById('lista-clientes');
 const contadorEl = document.getElementById('contador-activos');
 const buscarInput = document.getElementById('buscar-cliente');
@@ -27,6 +28,13 @@ function formatHora(date) {
 function actualizarHoraInput() {
   horaInput.value = formatHora(new Date());
 }
+
+function actualizarVisibilidadDuracion() {
+  const mostrar = servicioSelect.value === 'sauna_individual';
+  duracionField.style.display = mostrar ? 'block' : 'none';
+}
+
+servicioSelect.addEventListener('change', actualizarVisibilidadDuracion);
 
 function mostrarToast(msg, tipo = 'success') {
   toastEl.textContent = msg;
@@ -92,6 +100,7 @@ function renderLista() {
           <span class="service-tag">${SERVICIOS_LABEL[c.servicio] || c.servicio}</span>
           <span>👥 ${c.personas || 1}</span>
           ${c.cabina ? `<span>🚪 ${escapeHtml(c.cabina)}</span>` : ''}
+          ${c.casillero ? `<span>🔑 Casillero ${escapeHtml(c.casillero)}</span>` : ''}
           <span>⏱ ${formatHora(new Date(c.timestamp))} · ${tiempoTranscurrido(c.timestamp)}</span>
           <span class="time-badge ${claseAlerta}">${estado.texto}</span>
         </div>
@@ -117,10 +126,11 @@ form.addEventListener('submit', async (e) => {
   const servicio = document.getElementById('servicio').value;
   const personas = Number(document.getElementById('personas').value) || 1;
   const cabina = document.getElementById('cabina').value.trim();
-  const duracion = Number(document.getElementById('duracion').value);
+  const casillero = document.getElementById('casillero').value.trim();
+  const duracion = servicio === 'sauna_individual' ? Number(duracionSelect.value) : DURACION_POR_DEFECTO;
   const notas = document.getElementById('notas').value.trim();
 
-  if (!nombre || !servicio || !duracion) {
+  if (!nombre || !servicio) {
     mostrarToast('Completa los campos requeridos', 'error');
     return;
   }
@@ -132,6 +142,7 @@ form.addEventListener('submit', async (e) => {
     servicio,
     personas,
     cabina,
+    casillero,
     duracion,
     notas,
     estado: 'activo',
@@ -145,7 +156,8 @@ form.addEventListener('submit', async (e) => {
     mostrarToast(`✅ ${nombre} registrado`);
     form.reset();
     document.getElementById('personas').value = 1;
-    document.getElementById('duracion').value = '60';
+    duracionSelect.value = '60';
+    actualizarVisibilidadDuracion();
     actualizarHoraInput();
     await cargarClientes();
   } catch (err) {
@@ -222,6 +234,7 @@ function initTabs() {
 document.addEventListener('DOMContentLoaded', async () => {
   actualizarHoraInput();
   actualizarEstadoConexion();
+  actualizarVisibilidadDuracion();
   initTabs();
   await cargarClientes();
 

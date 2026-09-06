@@ -60,10 +60,7 @@
                 <option value="" disabled selected>Selecciona un servicio</option>
                 <option value="sauna_individual">Sauna Individual</option>
                 <option value="sauna_grupal">Sauna Grupal</option>
-                <option value="masaje_simple">Masaje Simple</option>
                 <option value="masaje_sauna">Masaje + Sauna</option>
-                <option value="piscina_jacuzzi">Piscina/Jacuzzi</option>
-                <option value="paquete_completo">Paquete Completo</option>
               </select>
             </div>
 
@@ -80,19 +77,24 @@
 
             <div class="field-row">
               <div class="field">
+                <label for="casillero">Casillero</label>
+                <input type="text" id="casillero" name="casillero" placeholder="Ej: 12">
+              </div>
+              <div class="field">
                 <label for="hora">Hora de ingreso</label>
                 <input type="text" id="hora" name="hora" readonly>
               </div>
-              <div class="field">
-                <label for="duracion">Duración estimada</label>
-                <select id="duracion" name="duracion" required>
-                  <option value="30">30 min</option>
-                  <option value="45">45 min</option>
-                  <option value="60" selected>60 min</option>
-                  <option value="90">90 min</option>
-                  <option value="120">120 min</option>
-                </select>
-              </div>
+            </div>
+
+            <div class="field" id="duracion-field" style="display:none;">
+              <label for="duracion">Duración estimada</label>
+              <select id="duracion" name="duracion">
+                <option value="60" selected>60 min</option>
+                <option value="90">90 min</option>
+                <option value="120">120 min</option>
+                <option value="150">150 min</option>
+                <option value="180">180 min</option>
+              </select>
             </div>
 
             <div class="field">

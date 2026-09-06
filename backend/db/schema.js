@@ -70,6 +70,18 @@ function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_cajas_updated ON cajas(updatedAt);
     CREATE INDEX IF NOT EXISTS idx_movimientos_updated ON movimientos(updatedAt);
   `);
+
+  agregarColumnaSiNoExiste(db, 'clientes', 'casillero', 'TEXT');
+}
+
+/* Agrega una columna a una tabla ya existente si todavía no la tiene.
+   Necesario porque CREATE TABLE IF NOT EXISTS no actualiza tablas que ya se crearon antes. */
+function agregarColumnaSiNoExiste(db, tabla, columna, tipo) {
+  const columnas = db.prepare(`PRAGMA table_info(${tabla})`).all();
+  const existe = columnas.some(c => c.name === columna);
+  if (!existe) {
+    db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${tipo}`);
+  }
 }
 
 module.exports = { initSchema };
