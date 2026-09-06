@@ -72,7 +72,11 @@ async function generarReporte() {
 
   if (cajaDia && cajaDia.estado === 'cerrada') {
     const dif = cajaDia.diferencia;
-    repArqueoEl.textContent = `${dif === 0 ? 'Sin diferencia' : (dif > 0 ? '+' : '') + formatBsRep(dif)}`;
+    if (dif === 0) {
+      repArqueoEl.textContent = 'Sin diferencia';
+    } else {
+      repArqueoEl.textContent = `${formatBsRep(dif)} (${dif > 0 ? 'sobrante' : 'faltante'})`;
+    }
     repArqueoEl.style.color = dif === 0 ? 'var(--success)' : 'var(--danger)';
   } else if (cajaDia && cajaDia.estado === 'abierta') {
     repArqueoEl.textContent = 'Caja abierta';

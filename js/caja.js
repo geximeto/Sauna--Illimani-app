@@ -341,7 +341,12 @@ cierreForm.addEventListener('submit', async (e) => {
   const efectivoEsperado = cajaActual.montoInicial + t.ingresoEfectivo - t.egresoEfectivo;
   const diferencia = montoContado - efectivoEsperado;
 
-  if (!confirm(`¿Cerrar la caja del día?\n\nEsperado: ${formatBsCaja(efectivoEsperado)}\nContado: ${formatBsCaja(montoContado)}\nDiferencia: ${formatBsCaja(diferencia)}`)) {
+  let mensaje = `¿Cerrar la caja del día?\n\nEsperado: ${formatBsCaja(efectivoEsperado)}\nContado: ${formatBsCaja(montoContado)}\nDiferencia: ${formatBsCaja(diferencia)}`;
+  if (montoContado === 0 && efectivoEsperado > 0) {
+    mensaje = `⚠️ Pusiste Bs. 0.00 como efectivo contado, pero se esperaban ${formatBsCaja(efectivoEsperado)}.\n\n¿Seguro que contaste el dinero antes de cerrar? Si no, cancela y vuelve a intentarlo.\n\n${mensaje}`;
+  }
+
+  if (!confirm(mensaje)) {
     return;
   }
 
