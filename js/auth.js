@@ -3,6 +3,7 @@
    filtro simple para que el personal no entre por accidente a módulos
    que no le corresponden. */
 const ROLE_KEY = 'sauna_role';
+const NOMBRE_KEY = 'sauna_nombre';
 
 const loginGate = document.getElementById('login-gate');
 const loginForm = document.getElementById('login-form');
@@ -15,6 +16,10 @@ const TABS_SOLO_ASISTENTE = ['pedidos'];
 
 function getRole() {
   return localStorage.getItem(ROLE_KEY);
+}
+
+function getNombre() {
+  return localStorage.getItem(NOMBRE_KEY) || (getRole() === 'encargada' ? 'Encargada' : '');
 }
 
 function ocultarGate() {
@@ -41,7 +46,7 @@ function aplicarRestriccionesDeRol(role) {
   }
 
   roleBadge.style.display = 'inline-flex';
-  roleBadge.textContent = esAsistente ? '👤 Asistente' : '👤 Encargada';
+  roleBadge.textContent = `👤 ${getNombre()}`;
   logoutBtn.style.display = 'inline-flex';
 }
 
@@ -63,8 +68,9 @@ loginForm.addEventListener('submit', async (e) => {
   if (!pin) return;
 
   try {
-    const { role } = await intentarLogin(pin);
+    const { role, nombre } = await intentarLogin(pin);
     localStorage.setItem(ROLE_KEY, role);
+    if (nombre) localStorage.setItem(NOMBRE_KEY, nombre);
     aplicarRestriccionesDeRol(role);
     ocultarGate();
     if (role === 'asistente' && typeof poblarSelectClientes === 'function') {
@@ -81,6 +87,7 @@ loginForm.addEventListener('submit', async (e) => {
 
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(NOMBRE_KEY);
   location.reload();
 });
 

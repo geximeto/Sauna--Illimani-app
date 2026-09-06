@@ -30,7 +30,7 @@ app.use(express.json({ limit: '5mb' }));
 const RESOURCES = {
   clientes: ['uuid', 'nombre', 'telefono', 'servicio', 'personas', 'cabina', 'casillero', 'duracion', 'notas', 'estado', 'timestamp', 'salidaTimestamp', 'updatedAt'],
   productos: ['uuid', 'nombre', 'categoria', 'stock', 'unidad', 'stockMinimo', 'precio', 'updatedAt'],
-  pedidos: ['uuid', 'clienteUuid', 'clienteNombre', 'items', 'total', 'notas', 'estado', 'pagado', 'metodoPago', 'timestamp', 'updatedAt'],
+  pedidos: ['uuid', 'clienteUuid', 'clienteNombre', 'items', 'total', 'notas', 'estado', 'pagado', 'metodoPago', 'atendidoPor', 'timestamp', 'updatedAt'],
   cajas: ['uuid', 'fecha', 'montoInicial', 'estado', 'montoContado', 'efectivoEsperado', 'diferencia', 'aperturaTimestamp', 'cierreTimestamp', 'updatedAt'],
   movimientos: ['uuid', 'cajaUuid', 'tipo', 'concepto', 'monto', 'metodoPago', 'timestamp', 'updatedAt']
 };
@@ -46,12 +46,17 @@ app.get('/api/health', (req, res) => {
 // Acceso por código compartido: no reemplaza un login real, solo evita que el
 // personal sin permiso entre por accidente a módulos que no le corresponden.
 const PIN_ENCARGADA = process.env.PIN_ENCARGADA || '730415';
-const PIN_ASISTENTE = process.env.PIN_ASISTENTE || '220817';
+const ASISTENTES = [
+  { pin: process.env.PIN_ASISTENTE_1 || '100001', nombre: 'Asistente 1' },
+  { pin: process.env.PIN_ASISTENTE_2 || '100002', nombre: 'Asistente 2' },
+  { pin: process.env.PIN_ASISTENTE_3 || '100003', nombre: 'Asistente 3' }
+];
 
 app.post('/api/auth/login', (req, res) => {
   const pin = String(req.body.pin || '').trim();
   if (pin === PIN_ENCARGADA) return res.json({ role: 'encargada' });
-  if (pin === PIN_ASISTENTE) return res.json({ role: 'asistente' });
+  const asistente = ASISTENTES.find(a => a.pin === pin);
+  if (asistente) return res.json({ role: 'asistente', nombre: asistente.nombre });
   res.status(401).json({ error: 'Código incorrecto' });
 });
 

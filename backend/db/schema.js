@@ -72,6 +72,7 @@ function initSchema(db) {
   `);
 
   agregarColumnaSiNoExiste(db, 'clientes', 'casillero', 'TEXT');
+  agregarColumnaSiNoExiste(db, 'pedidos', 'atendidoPor', 'TEXT');
 }
 
 /* Agrega una columna a una tabla ya existente si todavía no la tiene.

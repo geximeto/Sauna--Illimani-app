@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sauna-app-v12';
+const CACHE_NAME = 'sauna-app-v13';
 const ASSETS = [
   './',
   './index.html',

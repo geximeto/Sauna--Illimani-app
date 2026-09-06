@@ -152,6 +152,7 @@ pedidoForm.addEventListener('submit', async (e) => {
     notas,
     estado: 'pendiente',
     pagado: false,
+    atendidoPor: typeof getNombre === 'function' ? getNombre() : '',
     timestamp: Date.now(),
     synced: false,
     updatedAt: Date.now()
@@ -210,6 +211,7 @@ function renderPedidos() {
         <div class="client-name">${escapeHtml(p.clienteNombre)}</div>
         <div class="client-meta">
           <span class="service-tag">${itemsTexto}</span>
+          ${p.atendidoPor ? `<span>👤 ${escapeHtml(p.atendidoPor)}</span>` : ''}
           <span>⏱ ${formatHora(new Date(p.timestamp))}</span>
           <span class="time-badge ${pendiente ? 'alerta' : ''}">${pendiente ? 'Pendiente' : 'Entregado'}</span>
           <span class="time-badge ${p.pagado ? '' : 'vencido'}">${p.pagado ? 'Pagado' : 'Sin pagar'}</span>
