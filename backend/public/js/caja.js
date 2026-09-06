@@ -5,8 +5,7 @@ const cajaEstadoBadge = document.getElementById('caja-estado-badge');
 const cajaFechaLabel = document.getElementById('caja-fecha-label');
 const cajaResumenEl = document.getElementById('caja-resumen');
 const cajaDiferenciaEl = document.getElementById('caja-diferencia');
-const listaServiciosCobrarEl = document.getElementById('lista-servicios-cobrar');
-const listaPedidosCobrarEl = document.getElementById('lista-pedidos-cobrar');
+const listaPorCobrarEl = document.getElementById('lista-por-cobrar');
 const listaMovimientosEl = document.getElementById('lista-movimientos');
 const contadorMovimientosEl = document.getElementById('contador-movimientos');
 
@@ -51,8 +50,7 @@ async function refrescarCaja() {
     cajaEstadoBadge.className = 'status-badge status-offline';
     aperturaForm.style.display = 'flex';
     cajaResumenEl.style.display = 'none';
-    listaServiciosCobrarEl.innerHTML = '<p class="empty-state">Abre la caja para registrar cobros.</p>';
-    listaPedidosCobrarEl.innerHTML = '<p class="empty-state">Abre la caja para registrar cobros.</p>';
+    listaPorCobrarEl.innerHTML = '<p class="empty-state">Abre la caja para registrar cobros.</p>';
     listaMovimientosEl.innerHTML = '<p class="empty-state">Abre la caja para ver movimientos.</p>';
     contadorMovimientosEl.textContent = '0';
     return;
@@ -64,8 +62,7 @@ async function refrescarCaja() {
   cajaResumenEl.style.display = 'block';
 
   await cargarMovimientos();
-  await cargarServiciosPorCobrar();
-  await cargarPedidosPorCobrar();
+  await cargarPorCobrar();
   actualizarResumen();
 }
 
@@ -173,166 +170,144 @@ movimientoForm.addEventListener('submit', async (e) => {
   }
 });
 
-async function cargarServiciosPorCobrar() {
-  const clientes = await getAllClientes();
-  const porCobrar = clientes
-    .filter(c => !c.servicioPagado && fechaDeTimestampCaja(c.timestamp) === hoyStr())
-    .sort((a, b) => a.timestamp - b.timestamp);
+async function cargarPorCobrar() {
+  const [clientes, pedidos] = await Promise.all([getAllClientes(), getAllPedidos()]);
 
-  if (porCobrar.length === 0) {
-    listaServiciosCobrarEl.innerHTML = '<p class="empty-state">No hay servicios pendientes de cobro.</p>';
+  const serviciosPendientes = clientes.filter(c => !c.servicioPagado && fechaDeTimestampCaja(c.timestamp) === hoyStr());
+  const pedidosPendientes = pedidos.filter(p => p.estado === 'entregado' && !p.pagado);
+
+  // Agrupa por cliente (uuid) para poder cobrar servicio + sus pedidos juntos, en un solo paso.
+  const grupos = new Map();
+
+  serviciosPendientes.forEach(c => {
+    grupos.set(c.uuid, { clave: c.uuid, nombre: c.nombre, cliente: c, pedidos: [], timestamp: c.timestamp });
+  });
+
+  pedidosPendientes.forEach(p => {
+    const clave = p.clienteUuid || `sin-cliente-${p.uuid}`;
+    if (!grupos.has(clave)) {
+      grupos.set(clave, { clave, nombre: p.clienteNombre, cliente: null, pedidos: [], timestamp: p.timestamp });
+    }
+    grupos.get(clave).pedidos.push(p);
+  });
+
+  const listaGrupos = Array.from(grupos.values()).sort((a, b) => a.timestamp - b.timestamp);
+
+  if (listaGrupos.length === 0) {
+    listaPorCobrarEl.innerHTML = '<p class="empty-state">No hay nada pendiente de cobro.</p>';
     return;
   }
 
-  listaServiciosCobrarEl.innerHTML = porCobrar.map(c => {
-    const monto = calcularMontoServicio(c);
-    const esManual = monto === null;
+  listaPorCobrarEl.innerHTML = listaGrupos.map(g => {
+    const montoServicio = g.cliente ? calcularMontoServicio(g.cliente) : null;
+    const servicioEsManual = g.cliente && montoServicio === null;
+    const totalPedidos = g.pedidos.reduce((s, p) => s + p.total, 0);
+
+    const lineas = [];
+    if (g.cliente) {
+      lineas.push(`${SERVICIOS_LABEL[g.cliente.servicio] || g.cliente.servicio} (👥 ${g.cliente.personas || 1})`);
+    }
+    if (g.pedidos.length > 0) {
+      lineas.push(`${g.pedidos.length} pedido${g.pedidos.length > 1 ? 's' : ''}: ${g.pedidos.map(p => p.items.map(i => `${i.cantidad}x ${i.nombre}`).join(', ')).join(' + ')}`);
+    }
+
     return `
-    <div class="client-item alerta" data-id="${c.id}">
+    <div class="client-item alerta" data-clave="${g.clave}">
       <div class="client-info">
-        <div class="client-name">${escapeHtml(c.nombre)}</div>
+        <div class="client-name">${escapeHtml(g.nombre)}</div>
         <div class="client-meta">
-          <span class="service-tag">${SERVICIOS_LABEL[c.servicio] || c.servicio}</span>
-          <span>👥 ${c.personas || 1}</span>
-          ${esManual ? '<span style="color:var(--warning);font-weight:600;">Sin tarifa fija — ingresa el monto</span>' : ''}
+          ${lineas.map(l => `<span class="service-tag">${escapeHtml(l)}</span>`).join('')}
+          ${servicioEsManual ? '<span style="color:var(--warning);font-weight:600;">Servicio sin tarifa fija</span>' : ''}
         </div>
       </div>
       <div class="client-actions">
-        <input type="number" class="cobro-monto" data-id="${c.id}" min="0" step="0.01"
-          value="${esManual ? '' : monto.toFixed(2)}" placeholder="Bs." style="width:80px;">
-        <select class="cobro-metodo" data-id="${c.id}">
+        <input type="number" class="cobro-monto-servicio" data-clave="${g.clave}" min="0" step="0.01"
+          value="${g.cliente && !servicioEsManual ? montoServicio.toFixed(2) : ''}"
+          placeholder="${g.cliente ? 'Servicio' : ''}" style="width:75px; ${g.cliente ? '' : 'display:none;'}">
+        <span style="font-weight:700;" title="Total pedidos">${g.pedidos.length > 0 ? formatBsCaja(totalPedidos) : ''}</span>
+        <select class="cobro-metodo" data-clave="${g.clave}">
           <option value="efectivo">Efectivo</option>
           <option value="tarjeta">Tarjeta</option>
           <option value="qr">QR</option>
         </select>
-        <button class="btn-icon btn-salida" title="Cobrar" data-action="cobrar-servicio" data-id="${c.id}">✔</button>
+        <button class="btn-icon btn-salida" title="Cobrar todo" data-action="cobrar-grupo" data-clave="${g.clave}">✔</button>
       </div>
     </div>
   `;
   }).join('');
+
+  listaPorCobrarEl._grupos = grupos;
 }
 
-listaServiciosCobrarEl.addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-action="cobrar-servicio"]');
+listaPorCobrarEl.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action="cobrar-grupo"]');
   if (!btn) return;
   if (!cajaActual) {
     mostrarToast('Primero abre la caja', 'error');
     return;
   }
 
-  const id = Number(btn.dataset.id);
-  const montoInput = listaServiciosCobrarEl.querySelector(`.cobro-monto[data-id="${id}"]`);
-  const select = listaServiciosCobrarEl.querySelector(`.cobro-metodo[data-id="${id}"]`);
-  const monto = Number(montoInput.value);
+  const clave = btn.dataset.clave;
+  const grupo = listaPorCobrarEl._grupos && listaPorCobrarEl._grupos.get(clave);
+  if (!grupo) return;
+
+  const montoServicioInput = listaPorCobrarEl.querySelector(`.cobro-monto-servicio[data-clave="${clave}"]`);
+  const montoServicio = grupo.cliente ? Number(montoServicioInput.value) : 0;
+  const select = listaPorCobrarEl.querySelector(`.cobro-metodo[data-clave="${clave}"]`);
   const metodoPago = select ? select.value : 'efectivo';
+  const totalPedidos = grupo.pedidos.reduce((s, p) => s + p.total, 0);
+  const totalCobro = montoServicio + totalPedidos;
 
-  if (!monto || monto <= 0) {
-    mostrarToast('Ingresa un monto válido', 'error');
+  if (grupo.cliente && (!montoServicio || montoServicio <= 0)) {
+    mostrarToast('Ingresa un monto válido para el servicio', 'error');
+    return;
+  }
+  if (totalCobro <= 0) {
+    mostrarToast('No hay nada que cobrar', 'error');
     return;
   }
 
-  const clientes = await getAllClientes();
-  const cliente = clientes.find(c => c.id === id);
-  if (!cliente) return;
+  try {
+    if (grupo.cliente) {
+      grupo.cliente.servicioPagado = true;
+      grupo.cliente.synced = false;
+      grupo.cliente.updatedAt = Date.now();
+      await updateCliente(grupo.cliente);
+    }
 
-  cliente.servicioPagado = true;
-  cliente.synced = false;
-  cliente.updatedAt = Date.now();
-  await updateCliente(cliente);
+    for (const pedido of grupo.pedidos) {
+      pedido.pagado = true;
+      pedido.metodoPago = metodoPago;
+      pedido.synced = false;
+      pedido.updatedAt = Date.now();
+      await updatePedido(pedido);
+    }
 
-  await addMovimiento({
-    uuid: generateUuid(),
-    cajaId: cajaActual.id,
-    cajaUuid: cajaActual.uuid,
-    tipo: 'ingreso',
-    concepto: `${SERVICIOS_LABEL[cliente.servicio] || cliente.servicio} - ${cliente.nombre}`,
-    monto,
-    metodoPago,
-    timestamp: Date.now(),
-    synced: false,
-    updatedAt: Date.now()
-  });
+    const partes = [];
+    if (grupo.cliente) partes.push(SERVICIOS_LABEL[grupo.cliente.servicio] || grupo.cliente.servicio);
+    if (grupo.pedidos.length > 0) partes.push(`${grupo.pedidos.length} pedido${grupo.pedidos.length > 1 ? 's' : ''}`);
 
-  mostrarToast(`💰 Servicio cobrado: ${cliente.nombre}`);
-  await cargarServiciosPorCobrar();
-  await cargarMovimientos();
-  actualizarResumen();
-});
+    await addMovimiento({
+      uuid: generateUuid(),
+      cajaId: cajaActual.id,
+      cajaUuid: cajaActual.uuid,
+      tipo: 'ingreso',
+      concepto: `${partes.join(' + ')} - ${grupo.nombre}`,
+      monto: totalCobro,
+      metodoPago,
+      timestamp: Date.now(),
+      synced: false,
+      updatedAt: Date.now()
+    });
 
-async function cargarPedidosPorCobrar() {
-  const pedidos = await getAllPedidos();
-  const porCobrar = pedidos
-    .filter(p => p.estado === 'entregado' && !p.pagado)
-    .sort((a, b) => a.timestamp - b.timestamp);
-
-  if (porCobrar.length === 0) {
-    listaPedidosCobrarEl.innerHTML = '<p class="empty-state">No hay pedidos pendientes de cobro.</p>';
-    return;
+    mostrarToast(`💰 Cobro registrado: ${grupo.nombre} (${formatBsCaja(totalCobro)})`);
+    await cargarPorCobrar();
+    await cargarMovimientos();
+    actualizarResumen();
+  } catch (err) {
+    console.error(err);
+    mostrarToast('Error al registrar el cobro', 'error');
   }
-
-  listaPedidosCobrarEl.innerHTML = porCobrar.map(p => {
-    const itemsTexto = p.items.map(i => `${i.cantidad}x ${escapeHtml(i.nombre)}`).join(', ');
-    return `
-    <div class="client-item alerta" data-id="${p.id}">
-      <div class="client-info">
-        <div class="client-name">${escapeHtml(p.clienteNombre)}</div>
-        <div class="client-meta">
-          <span class="service-tag">${itemsTexto}</span>
-          <span style="font-weight:700;">${formatBsCaja(p.total)}</span>
-        </div>
-      </div>
-      <div class="client-actions">
-        <select class="cobro-metodo" data-id="${p.id}">
-          <option value="efectivo">Efectivo</option>
-          <option value="tarjeta">Tarjeta</option>
-          <option value="qr">QR</option>
-        </select>
-        <button class="btn-icon btn-salida" title="Cobrar" data-action="cobrar" data-id="${p.id}">✔</button>
-      </div>
-    </div>
-  `;
-  }).join('');
-}
-
-listaPedidosCobrarEl.addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-action="cobrar"]');
-  if (!btn) return;
-  if (!cajaActual) {
-    mostrarToast('Primero abre la caja', 'error');
-    return;
-  }
-
-  const id = Number(btn.dataset.id);
-  const select = listaPedidosCobrarEl.querySelector(`.cobro-metodo[data-id="${id}"]`);
-  const metodoPago = select ? select.value : 'efectivo';
-
-  const pedidos = await getAllPedidos();
-  const pedido = pedidos.find(p => p.id === id);
-  if (!pedido) return;
-
-  pedido.pagado = true;
-  pedido.metodoPago = metodoPago;
-  pedido.synced = false;
-  pedido.updatedAt = Date.now();
-  await updatePedido(pedido);
-
-  await addMovimiento({
-    uuid: generateUuid(),
-    cajaId: cajaActual.id,
-    cajaUuid: cajaActual.uuid,
-    tipo: 'ingreso',
-    concepto: `Pedido - ${pedido.clienteNombre}`,
-    monto: pedido.total,
-    metodoPago,
-    timestamp: Date.now(),
-    synced: false,
-    updatedAt: Date.now()
-  });
-
-  mostrarToast(`💰 Cobro registrado: ${pedido.clienteNombre}`);
-  await cargarPedidosPorCobrar();
-  await cargarMovimientos();
-  actualizarResumen();
 });
 
 function calcularTotales() {
