@@ -146,6 +146,7 @@ form.addEventListener('submit', async (e) => {
     duracion,
     notas,
     estado: 'activo',
+    servicioPagado: false,
     timestamp: Date.now(),
     synced: false,
     updatedAt: Date.now()

@@ -722,15 +722,32 @@
           <li>Presiona <span class="btn-ref">✔</span>. Queda registrado como ingreso y el pedido pasa a pagado.</li>
         </ol>
 
-        <h3 class="paso-titulo">Cobrar un servicio de sauna (o cualquier otro ingreso)</h3>
-        <p>El servicio del sauna no tiene precio fijo en el sistema, así que se cobra manual con el formulario <strong>"Registrar Movimiento"</strong>:</p>
+        <h3 class="paso-titulo">Cobrar el servicio de sauna</h3>
+        <p>En <strong>"Servicios por Cobrar"</strong> aparece automáticamente cada cliente registrado hoy, con el monto ya calculado según el servicio:</p>
+        <table class="tabla">
+          <tr><th>Servicio</th><th>Cálculo</th></tr>
+          <tr><td>Sauna Grupal</td><td>Bs. 40 × N° de personas</td></tr>
+          <tr><td>Sauna Individual</td><td>Bs. 35 × N° de personas × horas de duración</td></tr>
+          <tr><td>Masaje + Sauna</td><td>Sin tarifa fija — hay que escribir el monto a mano</td></tr>
+        </table>
         <ol class="pasos">
-          <li>Tipo: <strong>Ingreso (cobro)</strong>.</li>
-          <li>Concepto: por ejemplo "Sauna grupal — Juan Pérez".</li>
+          <li>Revisa el monto (para Masaje + Sauna, escríbelo tú una vez definido el tipo de masaje).</li>
+          <li>Elige el método de pago.</li>
+          <li>Presiona <span class="btn-ref">✔</span>. Queda registrado como ingreso.</li>
+        </ol>
+        <div class="nota">
+          <span>💡</span>
+          <div>Si el monto calculado no es el correcto (por un descuento, por ejemplo), puedes editarlo directamente en el campo antes de presionar ✔.</div>
+        </div>
+
+        <h3 class="paso-titulo">Registrar cualquier otro ingreso o un gasto</h3>
+        <p>Para cobros que no sean de un cliente específico, o para gastos (compras, insumos), usa el formulario <strong>"Registrar Movimiento"</strong>:</p>
+        <ol class="pasos">
+          <li>Tipo: <strong>Ingreso (cobro)</strong> o <strong>Egreso (gasto)</strong>.</li>
+          <li>Concepto: una descripción breve.</li>
           <li>Monto y método de pago.</li>
           <li>Presiona <span class="btn-ref">Registrar Movimiento</span>.</li>
         </ol>
-        <p>El mismo formulario sirve para registrar <strong>egresos</strong> (gastos, compras) — solo cambia el "Tipo" a <strong>Egreso (gasto)</strong>.</p>
 
         <h3 class="paso-titulo">Cerrar la caja (al terminar el día)</h3>
         <ol class="pasos">

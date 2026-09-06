@@ -5,6 +5,7 @@ const cajaEstadoBadge = document.getElementById('caja-estado-badge');
 const cajaFechaLabel = document.getElementById('caja-fecha-label');
 const cajaResumenEl = document.getElementById('caja-resumen');
 const cajaDiferenciaEl = document.getElementById('caja-diferencia');
+const listaServiciosCobrarEl = document.getElementById('lista-servicios-cobrar');
 const listaPedidosCobrarEl = document.getElementById('lista-pedidos-cobrar');
 const listaMovimientosEl = document.getElementById('lista-movimientos');
 const contadorMovimientosEl = document.getElementById('contador-movimientos');
@@ -12,8 +13,24 @@ const contadorMovimientosEl = document.getElementById('contador-movimientos');
 let cajaActual = null;
 let movimientosCache = [];
 
+// Precios de servicio: null significa que no tiene tarifa fija y se cobra manual.
+const PRECIO_SERVICIO = {
+  sauna_grupal: (cliente) => (cliente.personas || 1) * 40,
+  sauna_individual: (cliente) => (cliente.personas || 1) * (cliente.duracion / 60) * 35,
+  masaje_sauna: () => null
+};
+
+function calcularMontoServicio(cliente) {
+  const calc = PRECIO_SERVICIO[cliente.servicio];
+  return calc ? calc(cliente) : null;
+}
+
 function hoyStr() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function fechaDeTimestampCaja(ts) {
+  return new Date(ts).toISOString().slice(0, 10);
 }
 
 function formatBsCaja(num) {
@@ -34,6 +51,7 @@ async function refrescarCaja() {
     cajaEstadoBadge.className = 'status-badge status-offline';
     aperturaForm.style.display = 'flex';
     cajaResumenEl.style.display = 'none';
+    listaServiciosCobrarEl.innerHTML = '<p class="empty-state">Abre la caja para registrar cobros.</p>';
     listaPedidosCobrarEl.innerHTML = '<p class="empty-state">Abre la caja para registrar cobros.</p>';
     listaMovimientosEl.innerHTML = '<p class="empty-state">Abre la caja para ver movimientos.</p>';
     contadorMovimientosEl.textContent = '0';
@@ -46,6 +64,7 @@ async function refrescarCaja() {
   cajaResumenEl.style.display = 'block';
 
   await cargarMovimientos();
+  await cargarServiciosPorCobrar();
   await cargarPedidosPorCobrar();
   actualizarResumen();
 }
@@ -152,6 +171,92 @@ movimientoForm.addEventListener('submit', async (e) => {
     console.error(err);
     mostrarToast('Error al registrar movimiento', 'error');
   }
+});
+
+async function cargarServiciosPorCobrar() {
+  const clientes = await getAllClientes();
+  const porCobrar = clientes
+    .filter(c => !c.servicioPagado && fechaDeTimestampCaja(c.timestamp) === hoyStr())
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  if (porCobrar.length === 0) {
+    listaServiciosCobrarEl.innerHTML = '<p class="empty-state">No hay servicios pendientes de cobro.</p>';
+    return;
+  }
+
+  listaServiciosCobrarEl.innerHTML = porCobrar.map(c => {
+    const monto = calcularMontoServicio(c);
+    const esManual = monto === null;
+    return `
+    <div class="client-item alerta" data-id="${c.id}">
+      <div class="client-info">
+        <div class="client-name">${escapeHtml(c.nombre)}</div>
+        <div class="client-meta">
+          <span class="service-tag">${SERVICIOS_LABEL[c.servicio] || c.servicio}</span>
+          <span>👥 ${c.personas || 1}</span>
+          ${esManual ? '<span style="color:var(--warning);font-weight:600;">Sin tarifa fija — ingresa el monto</span>' : ''}
+        </div>
+      </div>
+      <div class="client-actions">
+        <input type="number" class="cobro-monto" data-id="${c.id}" min="0" step="0.01"
+          value="${esManual ? '' : monto.toFixed(2)}" placeholder="Bs." style="width:80px;">
+        <select class="cobro-metodo" data-id="${c.id}">
+          <option value="efectivo">Efectivo</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="qr">QR</option>
+        </select>
+        <button class="btn-icon btn-salida" title="Cobrar" data-action="cobrar-servicio" data-id="${c.id}">✔</button>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+listaServiciosCobrarEl.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action="cobrar-servicio"]');
+  if (!btn) return;
+  if (!cajaActual) {
+    mostrarToast('Primero abre la caja', 'error');
+    return;
+  }
+
+  const id = Number(btn.dataset.id);
+  const montoInput = listaServiciosCobrarEl.querySelector(`.cobro-monto[data-id="${id}"]`);
+  const select = listaServiciosCobrarEl.querySelector(`.cobro-metodo[data-id="${id}"]`);
+  const monto = Number(montoInput.value);
+  const metodoPago = select ? select.value : 'efectivo';
+
+  if (!monto || monto <= 0) {
+    mostrarToast('Ingresa un monto válido', 'error');
+    return;
+  }
+
+  const clientes = await getAllClientes();
+  const cliente = clientes.find(c => c.id === id);
+  if (!cliente) return;
+
+  cliente.servicioPagado = true;
+  cliente.synced = false;
+  cliente.updatedAt = Date.now();
+  await updateCliente(cliente);
+
+  await addMovimiento({
+    uuid: generateUuid(),
+    cajaId: cajaActual.id,
+    cajaUuid: cajaActual.uuid,
+    tipo: 'ingreso',
+    concepto: `${SERVICIOS_LABEL[cliente.servicio] || cliente.servicio} - ${cliente.nombre}`,
+    monto,
+    metodoPago,
+    timestamp: Date.now(),
+    synced: false,
+    updatedAt: Date.now()
+  });
+
+  mostrarToast(`💰 Servicio cobrado: ${cliente.nombre}`);
+  await cargarServiciosPorCobrar();
+  await cargarMovimientos();
+  actualizarResumen();
 });
 
 async function cargarPedidosPorCobrar() {

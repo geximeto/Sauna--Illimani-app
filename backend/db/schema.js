@@ -72,6 +72,7 @@ function initSchema(db) {
   `);
 
   agregarColumnaSiNoExiste(db, 'clientes', 'casillero', 'TEXT');
+  agregarColumnaSiNoExiste(db, 'clientes', 'servicioPagado', 'INTEGER DEFAULT 0');
   agregarColumnaSiNoExiste(db, 'pedidos', 'atendidoPor', 'TEXT');
 }
 

@@ -37,6 +37,9 @@ function normalizeServerRecord(resource, record) {
       try { out.items = JSON.parse(out.items); } catch (e) { out.items = []; }
     }
   }
+  if (resource === 'clientes') {
+    out.servicioPagado = !!out.servicioPagado;
+  }
   return out;
 }
 
