@@ -43,6 +43,18 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, hora: new Date().toISOString() });
 });
 
+// Acceso por código compartido: no reemplaza un login real, solo evita que el
+// personal sin permiso entre por accidente a módulos que no le corresponden.
+const PIN_ENCARGADA = process.env.PIN_ENCARGADA || '730415';
+const PIN_ASISTENTE = process.env.PIN_ASISTENTE || '220817';
+
+app.post('/api/auth/login', (req, res) => {
+  const pin = String(req.body.pin || '').trim();
+  if (pin === PIN_ENCARGADA) return res.json({ role: 'encargada' });
+  if (pin === PIN_ASISTENTE) return res.json({ role: 'asistente' });
+  res.status(401).json({ error: 'Código incorrecto' });
+});
+
 // Sirve el frontend PWA directamente desde el mismo servidor.
 // Se copia a backend/public/ para que quede incluido cuando Railway/Render usan
 // "backend" como directorio raíz del despliegue (el resto del repo no se incluye).

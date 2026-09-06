@@ -1,10 +1,11 @@
-const CACHE_NAME = 'sauna-app-v11';
+const CACHE_NAME = 'sauna-app-v12';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/styles.css',
   './js/db.js',
+  './js/auth.js',
   './js/app.js',
   './js/inventario.js',
   './js/pedidos.js',
