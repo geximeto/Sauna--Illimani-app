@@ -271,3 +271,13 @@ async function putRecord(storeName, record) {
     req.onerror = () => reject(req.error);
   });
 }
+
+async function deleteRecordByLocalId(storeName, id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const req = tx.objectStore(storeName).delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}

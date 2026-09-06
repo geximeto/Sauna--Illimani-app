@@ -69,6 +69,7 @@ async function pullResource({ store, resource }) {
   if (!res.ok) throw new Error(`Fallo al recibir ${resource}`);
   const serverRecords = await res.json();
   const localRecords = await getAllRecords(store);
+  const uuidsEnServidor = new Set(serverRecords.map(r => r.uuid));
 
   let cambios = 0;
   for (const raw of serverRecords) {
@@ -88,6 +89,17 @@ async function pullResource({ store, resource }) {
       cambios++;
     }
   }
+
+  // Reconciliar borrados: un registro que ya se sincronizó antes (synced:true) y
+  // ya no existe en el servidor significa que alguien lo borró — se borra localmente
+  // también. Los registros aún no sincronizados (synced:false) nunca se tocan aquí.
+  for (const local of localRecords) {
+    if (local.synced === true && local.uuid && !uuidsEnServidor.has(local.uuid)) {
+      await deleteRecordByLocalId(store, local.id);
+      cambios++;
+    }
+  }
+
   return cambios;
 }
 
@@ -190,6 +202,15 @@ async function conectarTiempoReal() {
       const entry = SYNC_RESOURCES.find(r => r.resource === resource);
       if (!entry) return;
       await pullResource(entry);
+      refrescarVistaActual();
+    });
+
+    socket.on('sync:delete', async ({ resource, uuid }) => {
+      const entry = SYNC_RESOURCES.find(r => r.resource === resource);
+      if (!entry) return;
+      const locales = await getAllRecords(entry.store);
+      const local = locales.find(l => l.uuid === uuid);
+      if (local) await deleteRecordByLocalId(entry.store, local.id);
       refrescarVistaActual();
     });
   } catch (err) {
